@@ -5,13 +5,15 @@
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import { app } from "./app.js";
+import bcrypt from "bcrypt";
 dotenv.config({ path: "./.env" });
 
 connectDB()
-  .then(() => {
+  .then(async () => {
+    console.log(await bcrypt.genSalt(10)); // only once to generate ACCESS_TOKEN_SECRET
     app.listen(process.env.PORT || 8000, () => {
       console.log(`Server running on port ${process.env.PORT || 8000}`);
-    })
+    });
   })
   .catch((error) => console.log("MONGO DB connection failed: ", error));
 
