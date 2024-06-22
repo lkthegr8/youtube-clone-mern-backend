@@ -1,0 +1,7 @@
+{
+  "singleQuote": false,
+  "bracketSpacing": true,
+  "tabWidth": 2, 
+  "semi": true, // add semicolon at the end of line
+  "trailingComma": "es5"
+}
