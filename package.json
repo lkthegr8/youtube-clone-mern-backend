@@ -1,0 +1,15 @@
+{
+  "name": "youtube-clone-mern-backend",
+  "version": "1.0.0",
+  "description": "Youtube simillar clone with Mern stack.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Javascript",
+    "Backend"
+  ],
+  "author": "Lakshmikanth Mhetre",
+  "license": "ISC"
+}
