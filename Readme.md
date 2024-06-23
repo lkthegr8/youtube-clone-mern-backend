@@ -13,3 +13,8 @@ Folowing the "Chai aur backend" tutorial from youtube.
   3. Express
   4. Cors
   5. Cookie-parser 
+  6. Bcrypt
+  7. Cloudinary
+  8. Jsonwebtoken
+  9. Mongoose-aggregate-paginate-v2
+  10. Multer
