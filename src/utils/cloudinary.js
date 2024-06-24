@@ -15,15 +15,13 @@ const uploadOnCloudinary = async (localFilePath) => {
       return null;
     }
     // upload the file on cloudinary
-    const uploadResult = await cloudinary.uploader.upload(
-      "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-      {
-        // upload options
-        resource_type: "auto",
-      }
-    );
+    const uploadResult = await cloudinary.uploader.upload(localFilePath, {
+      // upload options
+      resource_type: "auto",
+    });
     // file uiploaded successfully
-    console.log("file is uploaded on cloudinary", uploadResult.url);
+    // console.log("file is uploaded on cloudinary", uploadResult.url);
+    fs.unlinkSync(localFilePath); // synchronous way to delete, will remove the locally saved temp file
     return uploadResult;
   } catch (error) {
     console.log(error);
