@@ -312,6 +312,112 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     );
 });
 
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { useName } = req.params;
+  if (!useName?.trim()) {
+    throw new ApiError(400, "Please provide user name");
+  }
+  // const user = await User.findOne({ userName: useName }).select("-password");
+  // instead of finding and doign other things we are directly using the aggregation pipelines.
+  const channel = await User.aggregate([
+    {
+      $match: { userName: useName?.toLowerCase() },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: { $size: "$subscribers" },
+        channelsSubscribedToCount: { $size: "$subscribedTo" },
+        isSubscribed: {
+          if: [req.user?._id, "$subscribers.subscriber"],
+          then: true,
+          else: false,
+        },
+      },
+    },
+    {
+      $project: {
+        fullName: 1,
+        userName: 1,
+        subscribersCount: 1,
+        channelsSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+      },
+    },
+  ]);
+
+  if (!channel?.length) {
+    throw new ApiError(404, "Channel not found");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, channel[0], "Channel fetched successfully"));
+});
+
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const watchHistory = await User.aggregate([
+    {
+      $match: { _id: new mongoose.Types.ObjectId(req.user?._id) }, // we are using object because we need to convert the string into object, which by default mongoose provides a string
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        // for every look up we can add pipeline, it is called subpipeline
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    userName: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        watchHistory[0],
+        "Watch history fetched successfully"
+      )
+    );
+});
+
 export {
   registerUser,
   loginUser,
@@ -321,4 +427,7 @@ export {
   getCurentUser,
   updateAccountDetails,
   updateUserCoverImage,
+  updateUserAvatar,
+  getUserChannelProfile,
+  getWatchHistory,
 };
